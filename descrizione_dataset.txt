@@ -1,0 +1,21 @@
+Breve descrizione dei dataset
+
+
+
+Ciascun dataset assegnato ad un gruppo e' composto da 2000 records. Ogni record caratterizza una news resa disponibile dalla compagnia Thomson Reuters. Le news estratte fanno riferimento 
+
+solo ad un sottoinsieme delle azioni quotate nei mercati USA. 
+
+
+
+Ogni record e' caratterizzata da cinque attributi:
+
+- ts: la data in cui la news e' stata pubblicata
+
+- body: il testo della news
+
+- stock: ticker dell'azione a cui fa riferimento la news (ad es. TWTR: Twitter)
+
+- positive: numero intero >= 0. Indica un conteggio di parole di carattere "positivo", dal punto di vista finanziario, trovate nella news.
+
+- negative: numero intero >= 0. Indica un conteggio di parole di carattere "negativo", dal punto di vista finanziario, trovate nella news.
