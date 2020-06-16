@@ -1,0 +1,126 @@
+/**
+*	
+*	Version: 1.0.0
+*	
+*
+*	Description:
+*	This script permits to calculate the SSE measure of a given clustering.
+*
+*	Input:
+*	input[0]: the cluster model coming out from the cluster operator
+*	input[1]: the example set of the clustering
+*
+*	Output:
+*	The SSE value of the clustering will be displayed in log console.
+**/
+
+import com.rapidminer.operator.clustering.ClusterModel;
+import com.rapidminer.operator.clustering.Cluster;
+
+int DBSCAN = 1;
+int KMEANS = 0;
+
+/** Set the current clustering algorithm **/
+int ALGO = DBSCAN;
+/************* End setting ****************/
+
+ClusterModel clustering = input[0];
+ExampleSet clusteringSet = input[1];
+
+operator.logNote("=============== SSE Computation ===============");
+Double sum = new Double(0);
+for (int i=ALGO; i < clustering.getNumberOfClusters(); i++) {
+	Cluster cluster = clustering.getCluster(i);
+
+	if (cluster.getNumberOfExamples() == 0) {
+		continue;
+	}
+	else {
+		Collection<Object> idsList = cluster.getExampleIds();
+		clusteringSet.remapIds();
+		TreeMap<String,Double> centroid = new TreeMap<String, Double>();
+		Attribute[] atts = clusteringSet.getExampleFromId(1).getAttributes().createRegularAttributeArray();
+		for (Attribute att : atts){
+			String attStr = att.getName();
+			centroid.put(attStr, 0.0);
+		}
+		
+		for (Object id : idsList) {
+			Example example = clusteringSet.getExampleFromId((Double) id);
+			for (Attribute att : atts){
+				String attStr = att.getName();
+				Double bValue = new Double(example.getValue(example.getAttributes().get(attStr)));
+				centroid.put(attStr, centroid.get(attStr) + bValue);
+			}
+		}
+
+		for (Attribute att : atts){
+			String attStr = att.getName();
+			centroid.put(attStr, centroid.get(attStr)/idsList.size());
+		}
+		if (i==1){
+			TreeMap<String,Double> centroid1 = new TreeMap<String, Double>();
+			centroid1 = centroid;
+		}else{
+			TreeMap<String,Double> centroid2 = new TreeMap<String, Double>();
+			centroid2 = centroid;
+		}
+		operator.logNote("Centroid cluster " + i + ": " + centroid);
+
+		for (Object id : idsList) {
+			Example example = clusteringSet.getExampleFromId((Double) id);
+			distance = new Double(calculateCosineSimilarity(centroid, example));
+			sum += distance*distance;
+		}
+	}
+}
+for (Attribute a : centroid1.KeySet()){
+	tring attStr = att.getName();
+	Double aValue = centroid1.get(a);
+	Double bValue = centroid2.get(a);
+	dotProduct += aValue*bValue;
+	normA += Math.pow(aValue,2);
+	normB += Math.pow(bValue,2);
+}
+sim = dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
+operator.logNote("Similarity: " + sim);
+operator.logNote("SSE: " + sum);
+operator.logNote("================== SSE End =================");
+
+Double calculateEuclideanDistance(TreeMap a, Example b)
+{
+		Attribute[] atts = b.getAttributes().createRegularAttributeArray();
+		Double sum = new Double(0);
+		Double dist = new Double(0);
+		for (Attribute att : atts){
+			String attStr = att.getName();
+			Double aValue = a.get(attStr);
+			Double bValue = new Double(b.getValue(b.getAttributes().get(attStr)));
+			Double difference = new Double(aValue - bValue);
+			sum += Math.pow(difference,2);
+		}
+		dist = Math.sqrt(sum);
+		
+		return dist;
+}
+Double calculateCosineSimilarity(TreeMap a, Example b)
+{
+		Attribute[] atts = b.getAttributes().createRegularAttributeArray();
+		Double dotProduct = new Double(0);
+		Double normA = new Double(0);
+		Double normB = new Double(0);
+		Double cosine = new Double(0);
+		for (Attribute att : atts){
+			String attStr = att.getName();
+			Double aValue = a.get(attStr);
+			Double bValue = new Double(b.getValue(b.getAttributes().get(attStr)));
+			dotProduct += aValue*bValue;
+			normA += Math.pow(aValue,2);
+			normB += Math.pow(bValue,2);
+		}
+		cosine = dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
+		
+		return cosine;
+}
+
+
